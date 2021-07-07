@@ -7,6 +7,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import parquet.org.apache.thrift.ProcessFunction
 import redis.clients.jedis.Jedis
 
 /**
@@ -46,6 +47,7 @@ object StreamingRecommender {
   val MONGODB_MOVIE_RECS_COLLECTION = "MovieRecs"
 
   def main(args: Array[String]): Unit = {
+
     val config = Map(
       "spark.cores" -> "local[*]",
       "mongo.uri" -> "mongodb://localhost:27017/recommender",
