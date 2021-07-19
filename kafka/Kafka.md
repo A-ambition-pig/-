@@ -255,6 +255,12 @@ kafka-console-producer.sh --topic first --broker-list linux1:9092
 batch.size： 只有数据积累到 batch.size 之后， sender 才会发送数据。
 linger.ms： 如果数据迟迟未达到 batch.size， sender 等待 linger.time 之后就会发送数据。  
 
+
+
+全局有序：一个分区，+ 同步发送（send之后，阻塞main，调用get()方法，效率极低）
+
+
+
 #### 消费者
 
 偏移量保存
@@ -265,3 +271,6 @@ linger.ms： 如果数据迟迟未达到 batch.size， sender 等待 linger.time
 kafka-console-consumer.sh --topic first --bootstrap-server linux1:9092
 ```
 
+如何对一个生产者重新消费？（开启了自动提交offset）
+
+换一个消费者组，并且AUTO_OFFSET_RESET_CONFIG属性为earliest。

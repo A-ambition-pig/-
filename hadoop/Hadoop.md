@@ -36,3 +36,8 @@ Yarn：
 
 
 
+#### 常见集群启动问题
+
+1、DataNode 和 NameNode 进程同时只能工作一个
+
+![](E:\github\BigDataLearning\hadoop\DataNode和NameNode只能启动一个.png)
