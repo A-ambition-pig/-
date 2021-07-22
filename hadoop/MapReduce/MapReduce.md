@@ -38,6 +38,8 @@ MapTask的并行度决定Map阶段的任务处理并发度，进而影响到整�
 
 ##### Job提交流程
 
+![](E:\github\BigDataLearning\hadoop\MapReduce\Job提交流程.png)
+
 
 
 
@@ -47,3 +49,19 @@ MapTask的并行度决定Map阶段的任务处理并发度，进而影响到整�
 #### Reduce
 
 #### FileOutputFormat数据输出
+
+
+
+### 传输相关
+
+#### 序列化
+
+把内存中的对象，转换成字节序列，以便于存储到磁盘(持久化)和网络传输。
+
+为什么不用Java序列化？
+
+Java的序列化是一个重量级序列化框架(Serializable)，一个对象被序列化后，会附带很多额外的信息，不便于传输。
+
+
+
+#### 压缩
