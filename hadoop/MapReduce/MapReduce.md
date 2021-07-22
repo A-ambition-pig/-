@@ -10,13 +10,13 @@
 
 **WordCount**
 
-![](E:\github\BigDataLearning\hadoop\MapReduce\MapReduce_WordCount.png)
+![](\MapReduce_WordCount.png)
 
 
 
 ### MapReduce框架原理
 
-![](E:\github\BigDataLearning\hadoop\MapReduce\MapReduce_框架原理.png)
+![](\MapReduce_框架原理.png)
 
 #### FileInputFormat数据输入
 
@@ -34,11 +34,11 @@ MapTask的并行度决定Map阶段的任务处理并发度，进而影响到整�
 
 数据切片：在逻辑上对输入进行切片，并不会在磁盘上将其切分成片进行存储。**数据切片是MapReduce程序计算输入数据的单位。**一个切片会对应启动一个MapTask。
 
-![](E:\github\BigDataLearning\hadoop\MapReduce\数据切片与MapTask并行度.png)
+![](\数据切片与MapTask并行度.png)
 
 ##### Job提交流程
 
-![](E:\github\BigDataLearning\hadoop\MapReduce\Job提交流程.png)
+![](\Job提交流程.png)
 
 
 
