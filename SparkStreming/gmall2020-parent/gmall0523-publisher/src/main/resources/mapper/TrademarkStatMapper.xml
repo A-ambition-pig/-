@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+    1、namespace属性的值和接口的全限定名保持一致
+    2、select标签中，id属性值和接口中的方法名保持一致
+    3、通过#{}方式接收参数，如果只有一个参数，名称随意
+    4、语句结束之后，不能加分号
+    5、在SpringBoot启动类上加，@MapperScan(basePackages = "com.nanfeng.gmall.publisher.mapper")
+-->
+<mapper namespace="com.nanfeng.gmall.publisher.mapper.TrademarkStatMapper">
+
+    <select id="selectTradeSum" resultMap="tradeSum">
+        select
+            trademark_id,
+            trademark_name,
+            sum(amount) amount
+          from trademark_amount_stat
+         where stat_time &gt; #{start_date} and stat_time &lt; #{end_date}
+        group by trademark_id,trademark_name
+        order by sum(amount) desc
+        limit #{topN}
+    </select>
+    <resultMap id="tradeSum" type="java.util.Map" autoMapping="true"></resultMap>
+</mapper>
