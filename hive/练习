@@ -1,0 +1,225 @@
+统计硅谷影音视频网站的常规指标，各种 TopN 指标：
+-- 统计视频观看数 Top10
+-- 统计视频类别热度 Top10
+-- 统计出视频观看数最高的 20 个视频的所属类别以及类别包含 Top20 视频的个数
+-- 统计视频观看数 Top50 所关联视频的所属类别排序
+-- 统计每个类别中的视频热度 Top10,以 Music 为例
+-- 统计每个类别视频观看数 Top10
+-- 统计上传视频最多的用户 Top10 以及他们上传的视频观看次数在前 20 的视频
+
+videoId 视频唯一 id（String） 11 位字符串
+uploader 视频上传者（String） 上传视频的用户名 String
+age 视频年龄（int） 视频在平台上的整数天
+category 视频类别（Array<String>） 上传视频指定的视频分类
+length 视频长度（Int） 整形数字标识的视频长度
+views 观看次数（Int） 视频被浏览的次数
+rate 视频评分（Double） 满分 5 分
+Ratings 流量（Int） 视频的流量，整型数字
+conments 评论数（Int） 一个视频的整数评论数
+relatedId 相关视频 id（Array<String>） 相关视频的 id，最多 20 个
+
+uploader 上传者用户名 string
+videos 上传视频数 int
+friends 朋友数量 int
+
+create table gulivideo_ori(
+videoId string,
+uploader string,
+age int,
+category array<string>,
+ength int,
+views int,
+rate float,
+ratings int,
+comments int,
+relatedId array<string>)
+row format delimited fields terminated by "\t"
+collection items terminated by "&"
+stored as textfile;
+
+create table gulivideo_user_ori(
+uploader string,
+videos int,
+friends int)
+row format delimited
+fields terminated by "\t"
+stored as textfile;
+
+create table gulivideo_orc(
+videoId string,
+uploader string,
+age int,
+category array<string>,
+length int,
+views int,
+rate float,
+ratings int,
+comments int,
+relatedId array<string>)
+stored as orc
+tblproperties("orc.compress"="SNAPPY");
+
+create table gulivideo_user_orc(
+uploader string,
+videos int,
+friends int)
+row format delimited
+fields terminated by "\t"
+stored as orc
+tblproperties("orc.compress"="SNAPPY");
+
+-- 统计视频观看数(views) Top10
+select
+videoId,
+views
+  from gulivideo_orc
+order by views desc
+limit 10;
+ 
+-- 统计视频类别(category) 热度(views) Top10
+-- 统计包含视频最多的前10个类别
+with tmp as(
+select
+videoId,
+category_name
+  from gulivideo_orc
+  lateral view explode(category) gulivideo_orc_tmp as category_name
+)
+select
+category_name,
+count(videoId) hot
+  from tmp
+ group by category_name
+order by hot desc
+limit 10;
+
+-- 统计出视频观看数最高的 20 个视频的所属类别|以及类别包含 Top20 视频的个数
+select
+t2.category_name,
+count(t2.videoId) video_sum
+  from
+(
+select
+videoId,
+views,
+category_name
+  from 
+(
+select
+videoId,
+views,
+category
+  from gulivideo_orc
+order by views desc
+limit 20
+) t1
+lateral view explode(category) gulivideo_orc_tmp as category_name
+)
+t2
+ group by t2.category_name;
+
+-- 统计视频观看数 Top50 所关联视频(relatedId) 的所属类别排序
+select
+t6.category_name,
+t6.video_sum,
+rank() over(order by t6.video_sum desc) rk
+  from
+(
+select
+t5.category_name,
+count(t5.relatedId_id) video_sum
+  from 
+(
+select
+t4.relatedId_id,
+category_name
+  from
+(
+select
+t2.relatedId_id,
+t3.category
+  from
+(
+select
+relatedId_id
+  from 
+(
+select
+videoId,
+views,
+relatedId
+  from gulivideo_orc
+order by views desc
+limit 50
+) t1
+lateral view explode(t1.relatedId) t1_tmp as relatedId_id
+) t2
+  join gulivideo_orc t3
+  on t2.relatedId_id = t3.videoId
+) t4
+lateral view explode(t4.category) category_tmp as category_name
+) t5
+ group by t5.category_name
+order by video_sum desc
+) t6
+
+
+-- 统计每个类别中的视频热度 Top10,以 Music 为例
+select
+t1.videoId,
+t1.views,
+t1.category_name
+  from
+(
+select
+videoId,
+views,
+category_name
+  from gulivideo_orc
+lateral view explode(category) category_tmp as category_name
+) t1
+where t1.category_name="Music"
+order by t1.views desc
+limit 10;
+-- 统计每个类别(rank)视频观看数 Top10
+select 
+t2.videoId,
+t2.views,
+t2.category_name,
+t2.rk
+  from
+(
+select
+t1.videoId,
+t1.views,
+t1.category_name,
+rank() over(partition by t1.category_name order by t1.views desc) rk
+  from
+(
+select
+videoId,
+views,
+category_name
+  from gulivideo_orc
+lateral view explode(category) category_tmp as category_name
+) t1
+) t2
+where rk <= 10;
+
+-- 统计上传视频最多的用户 Top10 以及他们上传的视频观看次数在前 20 的视频
+select
+t2.videoId,
+t2.views,
+t2.uploader
+  from 
+(
+select
+uploader,
+videos
+  from gulivideo_user_orc
+order by videos desc
+limit 10
+) t1
+  join gulivideo_orc t2 on t1.uploader = t2.uploader
+order by t2.views desc
+limit 20;
