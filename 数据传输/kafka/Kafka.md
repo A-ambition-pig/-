@@ -28,7 +28,7 @@ b.消费者 拉取 kafka采取
 
 ### Kafka架构
 
-![](/Kafka架构.png)
+![](F:\bigdata\BigDataLearning\数据传输\kafka\Kafka架构.png)
 
 #### 文件存储
 
@@ -97,7 +97,7 @@ kafka之所以选择第二种方案，因为为了同样容忍n台节点故障�
 
 leader收到数据后开始同步，但是有一个follower出现故障，会导致leader一直等待下去。为了解决这种问题，leader维护了一个同步队列ISR，意为和leader保持同步的follower集合。
 
-当follower长时间没有与leader同步，则被提出ISR。
+当follower长时间没有与leader同步，则被踢出ISR。
 
 通信时间replica.lag.time.max.ms、数据量-条数replica.lag.time.max.messages（高版本去掉了，0.9）
 
@@ -203,9 +203,11 @@ producer生产数据，写入log文件，写的过程一直追加到文件末端
 
 ##### 零拷贝技术
 
-![](/零拷贝技术.png)
+![](F:\bigdata\BigDataLearning\数据传输\kafka\零拷贝技术.png)
 
 直接跟os系统打交道
+
+##### 页缓存技术
 
 
 
@@ -249,7 +251,7 @@ kafka-console-producer.sh --topic first --broker-list linux1:9092
 
 异步发送，main线程和Sender线程，以及一个线程共享变量RecordAccumulator
 
-![](/producer发送消息.png)
+![](F:\bigdata\BigDataLearning\数据传输\kafka\producer发送消息.png)
 
 相关参数：
 batch.size： 只有数据积累到 batch.size 之后， sender 才会发送数据。
@@ -274,3 +276,4 @@ kafka-console-consumer.sh --topic first --bootstrap-server linux1:9092
 如何对一个生产者重新消费？（开启了自动提交offset）
 
 换一个消费者组，并且AUTO_OFFSET_RESET_CONFIG属性为earliest。
+
